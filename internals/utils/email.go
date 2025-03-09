@@ -9,6 +9,8 @@ import (
 )
 
 func SendVerificationEmail(to string, token string, cfg *config.Config) error {
+	host := cfg.EmailHost
+	port := cfg.EmailPort
 	from := cfg.EmailSender
 	appPassword := cfg.EmailPass
 
@@ -22,7 +24,7 @@ func SendVerificationEmail(to string, token string, cfg *config.Config) error {
 		</html>
 	`, cfg.AppPort, token)
 
-	auth := smtp.PlainAuth("", from, appPassword, "smtp.gmail.com")
+	auth := smtp.PlainAuth("", from, appPassword, host)
 
 	message := []byte(
 		"From: " + from + "\r\n" +
@@ -34,7 +36,7 @@ func SendVerificationEmail(to string, token string, cfg *config.Config) error {
 	)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		fmt.Sprintf("%s:%s", host, port),
 		auth,
 		from,
 		[]string{to},
@@ -51,6 +53,8 @@ func SendVerificationEmail(to string, token string, cfg *config.Config) error {
 }
 
 func SendPasswordResetEmail(to string, token string, cfg *config.Config) error {
+	host := cfg.EmailHost
+	port := cfg.EmailPort
 	from := cfg.EmailSender
 	appPassword := cfg.EmailPass
 
@@ -64,7 +68,7 @@ func SendPasswordResetEmail(to string, token string, cfg *config.Config) error {
 		</html>
 	`, cfg.AppPort, token)
 
-	auth := smtp.PlainAuth("", from, appPassword, "smtp.gmail.com")
+	auth := smtp.PlainAuth("", from, appPassword, host)
 
 	message := []byte(
 		"From: " + from + "\r\n" +
@@ -76,7 +80,7 @@ func SendPasswordResetEmail(to string, token string, cfg *config.Config) error {
 	)
 
 	err := smtp.SendMail(
-		"smtp.gmail.com:587",
+		fmt.Sprintf("%s:%s", host, port),
 		auth,
 		from,
 		[]string{to},
