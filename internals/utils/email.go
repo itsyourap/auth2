@@ -12,6 +12,7 @@ func SendVerificationEmail(to string, token string, cfg *config.Config) error {
 	host := cfg.EmailHost
 	port := cfg.EmailPort
 	from := cfg.EmailSender
+	appUsername := cfg.EmailUsername
 	appPassword := cfg.EmailPass
 
 	subject := "Email Verification"
@@ -24,7 +25,7 @@ func SendVerificationEmail(to string, token string, cfg *config.Config) error {
 		</html>
 	`, cfg.AppPort, token)
 
-	auth := smtp.PlainAuth("", from, appPassword, host)
+	auth := smtp.PlainAuth("", appUsername, appPassword, host)
 
 	message := []byte(
 		"From: " + from + "\r\n" +
@@ -56,6 +57,7 @@ func SendPasswordResetEmail(to string, token string, cfg *config.Config) error {
 	host := cfg.EmailHost
 	port := cfg.EmailPort
 	from := cfg.EmailSender
+	appUsername := cfg.EmailUsername
 	appPassword := cfg.EmailPass
 
 	subject := "Password Reset"
@@ -68,7 +70,7 @@ func SendPasswordResetEmail(to string, token string, cfg *config.Config) error {
 		</html>
 	`, cfg.AppPort, token)
 
-	auth := smtp.PlainAuth("", from, appPassword, host)
+	auth := smtp.PlainAuth("", appUsername, appPassword, host)
 
 	message := []byte(
 		"From: " + from + "\r\n" +

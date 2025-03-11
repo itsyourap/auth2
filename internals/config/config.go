@@ -18,6 +18,7 @@ type Config struct {
 	EmailHost          string
 	EmailPort          string
 	EmailSender        string
+	EmailUsername      string
 	EmailPass          string
 	GoogleClientID     string
 	GoogleClientSecret string
@@ -41,6 +42,7 @@ func LoadConfig() *Config {
 		EmailHost:          os.Getenv("EMAIL_HOST"),
 		EmailPort:          os.Getenv("EMAIL_PORT"),
 		EmailSender:        os.Getenv("EMAIL_SENDER"),
+		EmailUsername:      os.Getenv("EMAIL_USERNAME"),
 		EmailPass:          os.Getenv("EMAIL_PASSWORD"),
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
