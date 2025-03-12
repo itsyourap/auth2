@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/Skythrill256/auth-service/internals/config"
 	"github.com/Skythrill256/auth-service/internals/db"
 	"github.com/Skythrill256/auth-service/internals/handlers"
 	"github.com/Skythrill256/auth-service/internals/models"
 	"github.com/gorilla/mux"
-	"log"
-	"net/http"
 )
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 	router.HandleFunc("/signup", handler.SignUpUser).Methods("POST")
 	router.HandleFunc("/login", handler.Login).Methods("POST")
 	router.HandleFunc("/verify-email", handler.VerifyEmail).Methods("GET")
+	router.HandleFunc("/auth/google", handler.GoogleOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/google/callback", handler.GoogleLogin).Methods("GET")
 	router.HandleFunc("/forget-password", handler.ForgotPassword).Methods("POST")
 	router.HandleFunc("/get-user", handler.GetUserById).Methods("GET")
