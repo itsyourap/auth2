@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
+	"net/http"
+
 	"github.com/Skythrill256/auth-service/internals/config"
 	"github.com/Skythrill256/auth-service/internals/db"
 	"github.com/Skythrill256/auth-service/internals/services"
 	"github.com/Skythrill256/auth-service/internals/utils"
 	"golang.org/x/crypto/bcrypt"
-	"html/template"
-	"net/http"
 )
 
 type Handler struct {
@@ -79,6 +80,20 @@ func (h *Handler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token, err := services.GoogleLogin(h.Config, h.Repository, code)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func (h *Handler) GithubLogin(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "Code is required", http.StatusBadRequest)
+		return
+	}
+	token, err := services.GithubLogin(h.Config, h.Repository, code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

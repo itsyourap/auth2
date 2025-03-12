@@ -12,4 +12,5 @@ type User struct {
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	GoogleID   *string   `json:"google_id,omitempty"`
+	GithubID   *int64    `json:"github_id,omitempty"`
 }

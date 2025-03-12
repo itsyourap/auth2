@@ -23,6 +23,9 @@ type Config struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleRedirectURL  string
+	GithubClientID     string
+	GithubClientSecret string
+	GithubRedirectURL  string
 }
 
 func LoadConfig() *Config {
@@ -47,5 +50,8 @@ func LoadConfig() *Config {
 		GoogleClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 		GoogleRedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+		GithubClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+		GithubClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		GithubRedirectURL:  os.Getenv("GITHUB_REDIRECT_URL"),
 	}
 }

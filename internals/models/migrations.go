@@ -10,7 +10,8 @@ func RunMigrations(db *sql.DB) error {
         is_verified BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        google_id VARCHAR(255) UNIQUE -- Add this line to include the google_id column
+        google_id VARCHAR(255) UNIQUE,
+        github_id BIGINT UNIQUE
     )`
 
 	_, err := db.Exec(query)
