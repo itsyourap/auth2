@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/Skythrill256/auth-service/internals/models"
 )
 
@@ -15,8 +16,8 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (repo *Repository) CreateUser(user *models.User) error {
-	query := `INSERT INTO users (email, password, google_id) VALUES ($1, $2, $3) RETURNING id`
-	err := repo.DB.QueryRow(query, user.Email, user.Password, user.GoogleID).Scan(&user.ID)
+	query := `INSERT INTO users (email, password, is_verified, google_id) VALUES ($1, $2, $3, $4) RETURNING id`
+	err := repo.DB.QueryRow(query, user.Email, user.Password, user.IsVerified, user.GoogleID).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
@@ -94,7 +95,7 @@ func (repo *Repository) ForgotPassword(email string) error {
 }
 func (repo *Repository) UpdateUserPassword(email string, newPassword string) error {
 	query := `UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE email = $2`
-	
+
 	_, err := repo.DB.Exec(query, newPassword, email)
 	if err != nil {
 		return err
