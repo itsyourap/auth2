@@ -16,8 +16,8 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (repo *Repository) CreateUser(user *models.User) error {
-	query := `INSERT INTO users (email, password, is_verified, google_id, github_id) VALUES ($1, $2, $3, $4, $5) RETURNING id`
-	err := repo.DB.QueryRow(query, user.Email, user.Password, user.IsVerified, user.GoogleID, user.GithubID).Scan(&user.ID)
+	query := `INSERT INTO users (email, password, is_verified, google_id, github_id, facebook_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	err := repo.DB.QueryRow(query, user.Email, user.Password, user.IsVerified, user.GoogleID, user.GithubID, user.FacebookID).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,8 @@ func (repo *Repository) CreateUser(user *models.User) error {
 
 func (repo *Repository) GetUserByID(id string) (*models.User, error) {
 	var user models.User
-	query := `SELECT id, email, password, is_verified, created_at, updated_at, google_id, github_id FROM users WHERE id=$1`
-	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.Email, &user.Password, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID)
+	query := `SELECT id, email, password, is_verified, created_at, updated_at, google_id, github_id, facebook_id FROM users WHERE id=$1`
+	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.Email, &user.Password, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID, &user.FacebookID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -39,8 +39,8 @@ func (repo *Repository) GetUserByID(id string) (*models.User, error) {
 
 func (repo *Repository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	query := `SELECT id, email, password, is_verified, created_at, updated_at, google_id, github_id FROM users WHERE email=$1`
-	err := repo.DB.QueryRow(query, email).Scan(&user.ID, &user.Email, &user.Password, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID)
+	query := `SELECT id, email, password, is_verified, created_at, updated_at, google_id, github_id, facebook_id FROM users WHERE email=$1`
+	err := repo.DB.QueryRow(query, email).Scan(&user.ID, &user.Email, &user.Password, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID, &user.FacebookID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -85,10 +85,23 @@ func (repo *Repository) GetUserByGithubID(githubID int64) (*models.User, error) 
 	return &user, nil
 }
 
+func (repo *Repository) GetUserByFacebookID(facebookID int64) (*models.User, error) {
+	var user models.User
+	query := `SELECT id, email, password, is_verified, created_at, updated_at, facebook_id FROM users WHERE facebook_id = $1`
+	err := repo.DB.QueryRow(query, facebookID).Scan(&user.ID, &user.Email, &user.Password, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.FacebookID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (repo *Repository) GetUserById(id int) (*models.User, error) {
 	var user models.User
-	query := `SELECT id, email, is_verified, created_at, updated_at, google_id, github_id FROM users WHERE id = $1`
-	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.Email, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID)
+	query := `SELECT id, email, is_verified, created_at, updated_at, google_id, github_id, facebook_id FROM users WHERE id = $1`
+	err := repo.DB.QueryRow(query, id).Scan(&user.ID, &user.Email, &user.IsVerified, &user.CreatedAt, &user.UpdatedAt, &user.GoogleID, &user.GithubID, &user.FacebookID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil

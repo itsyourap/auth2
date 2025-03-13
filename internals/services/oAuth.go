@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/Skythrill256/auth-service/internals/config"
 	"github.com/Skythrill256/auth-service/internals/db"
 	"github.com/Skythrill256/auth-service/internals/models"
 	"github.com/Skythrill256/auth-service/internals/utils"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
 )
@@ -31,6 +34,16 @@ func GetGithubOAuthConfig(cfg *config.Config) *oauth2.Config {
 		RedirectURL:  cfg.GithubRedirectURL,
 		Scopes:       []string{"user"},
 		Endpoint:     github.Endpoint,
+	}
+}
+
+func GetFacebookOAuthConfig(cfg *config.Config) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     cfg.FacebookClientID,
+		ClientSecret: cfg.FacebookClientSecret,
+		RedirectURL:  cfg.FacebookRedirectURL,
+		Scopes:       []string{"email"},
+		Endpoint:     facebook.Endpoint,
 	}
 }
 
@@ -160,6 +173,70 @@ func GithubLogin(cfg *config.Config, repository *db.Repository, code string) (st
 			Email:      email,
 			IsVerified: true,
 			GithubID:   &githubIDInt,
+		}
+		err := repository.CreateUser(newUser)
+		if err != nil {
+			return "", err
+		}
+		user = newUser
+	}
+
+	jwtToken, err := utils.GenerateJWT(user.Email, cfg.JWTSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return jwtToken, nil
+}
+
+func FacebookLogin(cfg *config.Config, repository *db.Repository, code string) (string, error) {
+	oauthConfig := GetFacebookOAuthConfig(cfg)
+
+	oauthToken, err := oauthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		return "", err
+	}
+
+	client := oauthConfig.Client(context.Background(), oauthToken)
+
+	resp, err := client.Get("https://graph.facebook.com/me?fields=email")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var facebookUser map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&facebookUser); err != nil {
+		return "", err
+	}
+
+	fmt.Println(facebookUser)
+
+	email, ok := facebookUser["email"].(string)
+	if !ok {
+		return "", errors.New("failed to get email from Facebook response")
+	}
+
+	facebookID, ok := facebookUser["id"].(string)
+	if !ok {
+		return "", errors.New("failed to get Facebook ID from response")
+	}
+
+	facebookIDInt, err := strconv.ParseInt(facebookID, 10, 64)
+	if err != nil {
+		return "", err
+	}
+
+	user, err := repository.GetUserByFacebookID(facebookIDInt)
+	if err != nil {
+		return "", err
+	}
+
+	if user == nil {
+		newUser := &models.User{
+			Email:      email,
+			IsVerified: true,
+			FacebookID: &facebookIDInt,
 		}
 		err := repository.CreateUser(newUser)
 		if err != nil {
