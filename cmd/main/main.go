@@ -31,6 +31,7 @@ func main() {
 	router.HandleFunc("/signup", handler.SignUpUser).Methods("POST")
 	router.HandleFunc("/login", handler.Login).Methods("POST")
 	router.HandleFunc("/verify-email", handler.VerifyEmail).Methods("GET")
+	router.HandleFunc("/auth/google", handler.GoogleOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/google/callback", handler.GoogleLogin).Methods("GET")
 	router.HandleFunc("/forget-password", handler.ForgotPassword).Methods("GET")
 	router.HandleFunc("/get-user", handler.GetUserById).Methods("GET")

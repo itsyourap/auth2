@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+
 	"github.com/Skythrill256/auth-service/internals/config"
 	"github.com/Skythrill256/auth-service/internals/db"
 	"github.com/Skythrill256/auth-service/internals/models"
@@ -20,6 +21,12 @@ func GetGoogleOAuthConfig(cfg *config.Config) *oauth2.Config {
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 		Endpoint:     google.Endpoint,
 	}
+}
+
+func GoogleOAuthConsentURL(cfg *config.Config) string {
+	oauthConfig := GetGoogleOAuthConfig(cfg)
+
+	return oauthConfig.AuthCodeURL("state")
 }
 
 func GoogleLogin(cfg *config.Config, repository *db.Repository, code string) (string, error) {

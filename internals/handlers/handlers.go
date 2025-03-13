@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"html/template"
+	"net/http"
+
 	"github.com/Skythrill256/auth-service/internals/config"
 	"github.com/Skythrill256/auth-service/internals/db"
 	"github.com/Skythrill256/auth-service/internals/services"
 	"github.com/Skythrill256/auth-service/internals/utils"
 	"golang.org/x/crypto/bcrypt"
-	"html/template"
-	"net/http"
 )
 
 type Handler struct {
@@ -70,6 +71,10 @@ func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Email Verified Successfully"})
+}
+
+func (h *Handler) GoogleOAuthConsentRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, services.GoogleOAuthConsentURL(h.Config), http.StatusTemporaryRedirect)
 }
 
 func (h *Handler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
