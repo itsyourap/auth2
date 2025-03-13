@@ -33,6 +33,7 @@ func main() {
 	router.HandleFunc("/verify-email", handler.VerifyEmail).Methods("GET")
 	router.HandleFunc("/auth/google", handler.GoogleOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/google/callback", handler.GoogleLogin).Methods("GET")
+	router.HandleFunc("/auth/github", handler.GithubOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/github/callback", handler.GithubLogin).Methods("GET")
 	router.HandleFunc("/forget-password", handler.ForgotPassword).Methods("GET")
 	router.HandleFunc("/get-user", handler.GetUserById).Methods("GET")
