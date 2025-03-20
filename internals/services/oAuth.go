@@ -59,6 +59,12 @@ func GithubOAuthConsentURL(cfg *config.Config) string {
 	return oauthConfig.AuthCodeURL("state")
 }
 
+func FacebookOAuthConsentURL(cfg *config.Config) string {
+	oauthConfig := GetFacebookOAuthConfig(cfg)
+
+	return oauthConfig.AuthCodeURL("state")
+}
+
 func GoogleLogin(cfg *config.Config, repository *db.Repository, code string) (string, error) {
 	oauthConfig := GetGoogleOAuthConfig(cfg)
 
