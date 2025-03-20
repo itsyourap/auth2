@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/Skythrill256/auth-service/internals/config"
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/microsoft"
 )
 
 func GetGoogleOAuthConfig(cfg *config.Config) *oauth2.Config {
@@ -44,6 +46,16 @@ func GetFacebookOAuthConfig(cfg *config.Config) *oauth2.Config {
 		RedirectURL:  cfg.FacebookRedirectURL,
 		Scopes:       []string{"email"},
 		Endpoint:     facebook.Endpoint,
+	}
+}
+
+func GetMicrosoftOAuthConfig(cfg *config.Config) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     cfg.MicrosoftClientID,
+		ClientSecret: cfg.MicrosoftClientSecret,
+		RedirectURL:  cfg.MicrosoftRedirectURL,
+		Scopes:       []string{"openid", "profile", "email", "offline_access", "User.Read"},
+		Endpoint:     microsoft.AzureADEndpoint("common"),
 	}
 }
 
@@ -246,6 +258,75 @@ func FacebookLogin(cfg *config.Config, repository *db.Repository, code string) (
 		}
 		err := repository.CreateUser(newUser)
 		if err != nil {
+			return "", err
+		}
+		user = newUser
+	}
+
+	jwtToken, err := utils.GenerateJWT(user.Email, cfg.JWTSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return jwtToken, nil
+}
+
+func MicrosoftLogin(cfg *config.Config, repository *db.Repository, code string) (string, error) {
+	oauthConfig := GetMicrosoftOAuthConfig(cfg)
+
+	oauthToken, err := oauthConfig.Exchange(context.Background(), code)
+	if err != nil {
+		return "", err
+	}
+
+	accessToken := oauthToken.AccessToken
+	if accessToken == "" {
+		return "", errors.New("failed to retrieve access token")
+	}
+
+	req, err := http.NewRequest("GET", "https://graph.microsoft.com/v1.0/me", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var microsoftUser struct {
+		ID    string `json:"id"`
+		Email string `json:"mail"`
+		UPN   string `json:"userPrincipalName"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&microsoftUser); err != nil {
+		return "", err
+	}
+
+	if microsoftUser.Email == "" {
+		microsoftUser.Email = microsoftUser.UPN
+	}
+
+	if microsoftUser.Email == "" {
+		return "", errors.New("failed to retrieve email from Microsoft API")
+	}
+
+	user, err := repository.GetUserByMicrosoftID(microsoftUser.ID)
+	if err != nil {
+		return "", err
+	}
+
+	if user == nil {
+		newUser := &models.User{
+			Email:       microsoftUser.Email,
+			IsVerified:  true,
+			MicrosoftID: &microsoftUser.ID,
+		}
+		if err := repository.CreateUser(newUser); err != nil {
 			return "", err
 		}
 		user = newUser
