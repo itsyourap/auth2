@@ -35,6 +35,7 @@ func main() {
 	router.HandleFunc("/auth/google/callback", handler.GoogleLogin).Methods("GET")
 	router.HandleFunc("/auth/github", handler.GithubOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/github/callback", handler.GithubLogin).Methods("GET")
+	router.HandleFunc("/auth/facebook", handler.FacebookOAuthConsentRedirect).Methods("GET")
 	router.HandleFunc("/auth/facebook/callback", handler.FacebookLogin).Methods("GET")
 	router.HandleFunc("/auth/microsoft/callback", handler.MicrosoftLogin).Methods("GET")
 	router.HandleFunc("/forget-password", handler.ForgotPassword).Methods("GET")
