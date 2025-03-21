@@ -14,4 +14,5 @@ type User struct {
 	GoogleID   *string   `json:"google_id,omitempty"`
 	GithubID   *int64    `json:"github_id,omitempty"`
 	FacebookID *int64    `json:"facebook_id,omitempty"`
+	LinkedinID *int64    `json:"linkedin_id,omitempty"`
 }

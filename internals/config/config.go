@@ -29,6 +29,9 @@ type Config struct {
 	FacebookClientID     string
 	FacebookClientSecret string
 	FacebookRedirectURL  string
+	LinkedInClientID     string
+	LinkedInClientSecret string
+	LinkedInRedirectURL  string
 }
 
 func LoadConfig() *Config {
@@ -59,5 +62,8 @@ func LoadConfig() *Config {
 		FacebookClientID:     os.Getenv("FACEBOOK_CLIENT_ID"),
 		FacebookClientSecret: os.Getenv("FACEBOOK_CLIENT_SECRET"),
 		FacebookRedirectURL:  os.Getenv("FACEBOOK_REDIRECT_URL"),
+		LinkedInClientID:     os.Getenv("LINKEDIN_CLIENT_ID"),
+		LinkedInClientSecret: os.Getenv("LINKEDIN_CLIENT_SECRET"),
+		LinkedInRedirectURL:  os.Getenv("LINKEDIN_REDIRECT_URL"),
 	}
 }
