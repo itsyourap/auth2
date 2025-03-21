@@ -81,6 +81,10 @@ func (h *Handler) GithubOAuthConsentRedirect(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, services.GithubOAuthConsentURL(h.Config), http.StatusTemporaryRedirect)
 }
 
+func (h *Handler) FacebookOAuthConsentRedirect(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, services.FacebookOAuthConsentURL(h.Config), http.StatusTemporaryRedirect)
+}
+
 func (h *Handler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
@@ -116,6 +120,20 @@ func (h *Handler) FacebookLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token, err := services.FacebookLogin(h.Config, h.Repository, code)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
+}
+
+func (h *Handler) MicrosoftLogin(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "Code is required", http.StatusBadRequest)
+		return
+	}
+	token, err := services.MicrosoftLogin(h.Config, h.Repository, code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
