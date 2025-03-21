@@ -12,7 +12,8 @@ func RunMigrations(db *sql.DB) error {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         google_id VARCHAR(255) UNIQUE,
         github_id BIGINT UNIQUE,
-        facebook_id BIGINT UNIQUE
+        facebook_id BIGINT UNIQUE,
+        microsoft_id VARCHAR(255) UNIQUE
     )`
 
 	_, err := db.Exec(query)
